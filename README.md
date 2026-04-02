@@ -14,6 +14,13 @@
 | Linting   | [Biome](https://biomejs.dev/)                                                | Linter and formatter                        |
 | CI/CD     | [GitHub Actions](https://github.com/features/actions)                        | Automated deployment pipeline               |
 
+## Getting Started
+
+```shell
+pnpm install
+pnpm prepare
+```
+
 ## Running the dev server
 
 ```shell
