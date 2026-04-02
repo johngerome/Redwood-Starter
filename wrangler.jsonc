@@ -1,0 +1,29 @@
+{
+  // Schema reference for wrangler configuration
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Name of your worker
+  "name": "rwstarter",
+  // Entry point for your worker
+  "main": "src/worker.tsx",
+  // Compatibility settings
+  "compatibility_date": "2025-08-21",
+  "compatibility_flags": ["nodejs_compat"],
+  // Assets configuration
+  "assets": {
+    "binding": "ASSETS",
+  },
+  // Observability settings
+  "observability": {
+    "enabled": true,
+  },
+  // Environment variables - secrets are in .env
+  "vars": {},
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "rwstarter",
+      "database_id": "907eb61f-e4c9-489f-a5d6-d8277d9b644c",
+      "migrations_dir": "drizzle",
+    },
+  ],
+}
