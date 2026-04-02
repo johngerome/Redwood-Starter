@@ -85,6 +85,7 @@ export function LoginForm({
                       placeholder=""
                       aria-invalid={fieldState.invalid}
                       autoComplete="email"
+                      tabIndex={0}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -101,6 +102,7 @@ export function LoginForm({
                       <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                       <a
                         href="#"
+                        tabIndex={-1}
                         className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                       >
                         Forgot your password?
@@ -112,6 +114,7 @@ export function LoginForm({
                       type="password"
                       aria-invalid={fieldState.invalid}
                       autoComplete="current-password"
+                      tabIndex={0}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -120,15 +123,21 @@ export function LoginForm({
                 )}
               />
               <Field>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
+                <Button
+                  type="submit"
+                  tabIndex={0}
+                  disabled={form.formState.isSubmitting}
+                >
                   {form.formState.isSubmitting ? "Logging in..." : "Login"}
                 </Button>
-                <Button variant="outline" type="button">
+                <Button variant="outline" type="button" tabIndex={0}>
                   Login with Google
                 </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?{" "}
-                  <a href={link("/signup")}>Sign up</a>
+                  <a href={link("/signup")} tabIndex={0}>
+                    Sign up
+                  </a>
                 </FieldDescription>
               </Field>
             </FieldGroup>
