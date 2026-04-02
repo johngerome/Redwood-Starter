@@ -57,10 +57,11 @@ pnpm run release
 > [!NOTE]
 > The following secrets are required for CI deployment.
 
-| Secret                  | Description                          |
-| ----------------------- | ------------------------------------ |
-| `CLOUDFLARE_API_TOKEN`  | API token with Workers and D1 access |
-| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID           |
+| Secret                    | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`    | API token with Workers and D1 access         |
+| `CLOUDFLARE_ACCOUNT_ID`   | Your Cloudflare account ID                   |
+| `VITE_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (used at build) |
 
 #### Cloudflare API Token
 
@@ -76,10 +77,19 @@ pnpm run release
 2. Select your account → **Workers & Pages**
 3. Copy the **Account ID** from the right sidebar
 
+#### Cloudflare Turnstile
+
+1. Go to [Cloudflare Dashboard → Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile)
+2. Click **Add widget**
+3. Enter a name and add your domain(s)
+4. Choose a widget mode (Managed, Non-Interactive, or Invisible)
+5. Copy the **Site Key** — use this for `VITE_TURNSTILE_SITE_KEY`
+6. Copy the **Secret Key** — add this as `TURNSTILE_SECRET_KEY` in your Cloudflare Worker secrets
+
 #### Adding secrets to GitHub
 
 1. Go to **Settings → Environments → Production**
-2. Add both `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`
+2. Add `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and `VITE_TURNSTILE_SITE_KEY`
 
 ## Further Reading
 

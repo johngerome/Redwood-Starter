@@ -22,6 +22,7 @@
     {
       "binding": "DB",
       "database_name": "rwstarter",
+      // Replace with your D1 database ID: wrangler d1 create <name>
       "database_id": "907eb61f-e4c9-489f-a5d6-d8277d9b644c",
       "migrations_dir": "drizzle",
     },
