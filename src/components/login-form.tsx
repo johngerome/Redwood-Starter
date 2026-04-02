@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { link } from "@/app/shared/links";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [serverError, setServerError] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -44,13 +46,25 @@ export function LoginForm({
     const params = new URLSearchParams(window.location.search);
     const redirectTo = params.get("redirectTo") || "/portal";
 
+    const token = turnstileRef.current?.getResponse();
+    if (!token) {
+      setServerError("Please complete the captcha verification.");
+      return;
+    }
+
     const { error } = await authClient.signIn.email({
       email: data.email,
       password: data.password,
+      fetchOptions: {
+        headers: {
+          "x-captcha-response": token,
+        },
+      },
     });
 
     if (error) {
       setServerError(error.message ?? "An error occurred.");
+      turnstileRef.current?.reset();
       return;
     }
 
@@ -121,6 +135,10 @@ export function LoginForm({
                     )}
                   </Field>
                 )}
+              />
+              <Turnstile
+                ref={turnstileRef}
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
               />
               <Field>
                 <Button

@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { link } from "@/app/shared/links";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { type SignupFormValues, signupSchema } from "@/schemas/signup-schema";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [serverError, setServerError] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -40,16 +42,28 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   async function onSubmit(data: SignupFormValues) {
     setServerError(null);
 
+    const token = turnstileRef.current?.getResponse();
+    if (!token) {
+      setServerError("Please complete the captcha verification.");
+      return;
+    }
+
     const { error } = await authClient.signUp.email({
       name: `${data.firstName} ${data.lastName}`,
       firstName: data.firstName,
       email: data.email,
       password: data.password,
       lastName: data.lastName,
+      fetchOptions: {
+        headers: {
+          "x-captcha-response": token,
+        },
+      },
     });
 
     if (error) {
       setServerError(error.message ?? "An error occurred.");
+      turnstileRef.current?.reset();
       return;
     }
 
@@ -175,6 +189,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   )}
                 </Field>
               )}
+            />
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
             />
             <Field>
               <Button type="submit" disabled={form.formState.isSubmitting}>
