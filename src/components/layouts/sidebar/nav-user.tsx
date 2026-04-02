@@ -25,10 +25,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import type { auth } from "@/lib/auth";
 import { authClient } from "@/lib/auth-client";
 
-type User = typeof auth.$Infer.Session.user;
+type User = typeof authClient.$Infer.Session.user;
 
 export function NavUser({ user }: { user: User | null | undefined }) {
   const { isMobile } = useSidebar();
