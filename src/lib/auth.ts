@@ -18,6 +18,19 @@ export const auth = betterAuth({
   ],
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      void env.EMAIL_QUEUE.send({
+        type: "VERIFY_USER_EMAIL",
+        email: user.email,
+        url,
+      });
+    },
+    sendOnSignUp: true,
+    sendOnSignIn: true,
+    callbackURL: "/portal",
   },
   user: {
     fields: {

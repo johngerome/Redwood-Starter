@@ -8,17 +8,14 @@ import { apiRoutes } from "@/routes/api-routes";
 import { pageRoutes } from "@/routes/page-routes";
 import { portalRoutes } from "@/routes/portal-routes";
 import { NotFound } from "./app/pages/not-found";
+import { handleEmailQueue } from "./queues/email-queue";
 
 export type AppContext = {
   user?: typeof auth.$Infer.Session.user | null;
   session?: typeof auth.$Infer.Session.session | null;
 };
 
-export interface Env {
-  DB: D1Database;
-}
-
-export default defineApp([
+export const app = defineApp([
   setCommonHeaders(),
   async ({ ctx, request }) => {
     const session = await auth.api.getSession({
@@ -30,3 +27,8 @@ export default defineApp([
   ...apiRoutes,
   render(Document, [...pageRoutes, ...portalRoutes, route("*", NotFound)]),
 ]);
+
+export default {
+  fetch: app.fetch,
+  queue: handleEmailQueue,
+} satisfies ExportedHandler<Env>;

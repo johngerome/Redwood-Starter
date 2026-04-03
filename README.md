@@ -11,6 +11,8 @@
 | Styling   | [Tailwind CSS](https://tailwindcss.com/)                                     | Utility-first CSS framework                 |
 | Forms     | [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)    | Form handling and validation                |
 | Icons     | [Phosphor Icons](https://phosphoricons.com/) + [Lucide](https://lucide.dev/) | Icon libraries                              |
+| Email     | [Resend](https://resend.com/)                                                | Transactional email service                 |
+| Queues    | [Cloudflare Queues](https://developers.cloudflare.com/queues/)               | Background message processing               |
 | Security  | [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/)         | Bot protection (CAPTCHA alternative)        |
 | Linting   | [Biome](https://biomejs.dev/)                                                | Linter and formatter                        |
 | CI/CD     | [GitHub Actions](https://github.com/features/actions)                        | Automated deployment pipeline               |
@@ -81,7 +83,13 @@ npx wrangler d1 create <your-database-name>
 ]
 ```
 
-### 3. Configure GitHub Environment (for CI/CD)
+### 3. Create a Queue
+
+```shell
+npx wrangler queues create email-queue
+```
+
+### 4. Configure GitHub Environment (for CI/CD)
 
 > [!NOTE]
 > GitHub is the source of truth for all production secrets and variables. Go to your repo **Settings → Environments**, create a **"Production"** environment, then add the following:
@@ -93,6 +101,7 @@ npx wrangler d1 create <your-database-name>
 | `CLOUDFLARE_API_TOKEN` | [Create a token](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) using the **"Edit Cloudflare Workers"** template, then add **Account → Cloudflare D1 → Edit** permission |
 | `TURNSTILE_SECRET_KEY` | Go to **Application Security → Turnstile** and copy the **Secret Key**                                                                                                                               |
 | `BETTER_AUTH_SECRET`   | Auth secret key (`openssl rand -base64 32`)                                                                                                                                                          |
+| `RESEND_API_KEY`       | [Create an API key](https://resend.com/api-keys) in your Resend dashboard                                                                                                                           |
 
 #### Variables
 
@@ -101,6 +110,7 @@ npx wrangler d1 create <your-database-name>
 | `CLOUDFLARE_ACCOUNT_ID`   | Select your account → **Workers & Pages**, copy the **Account ID** from the right sidebar    |
 | `BETTER_AUTH_URL`         | Production URL (e.g. `https://your-domain.com`)                                              |
 | `VITE_TURNSTILE_SITE_KEY` | Go to **Application Security → Turnstile** and copy the **Site Key**                         |
+| `EMAIL_FROM`              | Sender email address (e.g. `noreply@your-domain.com`), must be a [verified domain in Resend](https://resend.com/docs/dashboard/domains/introduction) |
 
 ## Deployment
 

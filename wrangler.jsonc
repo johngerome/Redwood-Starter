@@ -27,4 +27,17 @@
       "migrations_dir": "drizzle",
     },
   ],
+  "queues": {
+    "producers": [
+      {
+        "queue": "email-queue",
+        "binding": "EMAIL_QUEUE",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "email-queue",
+      },
+    ],
+  },
 }

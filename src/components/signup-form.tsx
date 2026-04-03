@@ -67,7 +67,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       return;
     }
 
-    window.location.href = "/portal";
+    window.location.href = `/signup/email-verification?email=${data.email}`;
   }
 
   return (
