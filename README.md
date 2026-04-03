@@ -11,85 +11,102 @@
 | Styling   | [Tailwind CSS](https://tailwindcss.com/)                                     | Utility-first CSS framework                 |
 | Forms     | [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)    | Form handling and validation                |
 | Icons     | [Phosphor Icons](https://phosphoricons.com/) + [Lucide](https://lucide.dev/) | Icon libraries                              |
+| Security  | [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/)         | Bot protection (CAPTCHA alternative)        |
 | Linting   | [Biome](https://biomejs.dev/)                                                | Linter and formatter                        |
 | CI/CD     | [GitHub Actions](https://github.com/features/actions)                        | Automated deployment pipeline               |
 
-## Getting Started
+## Installation & Setup
+
+1. Install dependencies:
+
+   ```shell
+   pnpm install
+   ```
+
+2. Set up pre-commit hooks:
+
+   ```shell
+   pnpm run prepare
+   ```
+
+3. Copy `.env.example` to `.env` and update the values:
+
+   ```shell
+   cp .env.example .env
+   ```
+
+4. Generate and apply database migrations:
+
+   ```shell
+   pnpm migrate:new
+   pnpm migrate:dev
+   ```
+
+5. Start the dev server:
+
+   ```shell
+   pnpm run dev
+   ```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser to see the app.
+
+## Pre-deployment Setup
+
+> [!IMPORTANT]
+> You need a [Cloudflare](https://dash.cloudflare.com/) account and a [GitHub](https://github.com/) account before proceeding.
+
+### 1. Log in to Cloudflare
 
 ```shell
-pnpm install
-pnpm prepare
+npx wrangler login
 ```
 
-## Running the dev server
+### 2. Create a D1 Database
 
 ```shell
-pnpm run dev
+npx wrangler d1 create <your-database-name>
 ```
 
-Point your browser to the URL displayed in the terminal (e.g. `http://localhost:5173/`). You should see the RedwoodSDK welcome page in your browser.
+> [!NOTE]
+> If prompted "Would you like Wrangler to add it on your behalf?", select **No**. Manually copy the `database_id` from the output and update `wrangler.jsonc`:
+
+```jsonc
+"d1_databases": [
+  {
+    "binding": "DB",
+    "database_name": "rwstarter",
+    "database_id": "<your-database-id>",
+    "migrations_dir": "drizzle",
+  },
+]
+```
+
+### 3. Configure GitHub Environment (for CI/CD)
+
+> [!NOTE]
+> GitHub is the source of truth for all production secrets and variables. Go to your repo **Settings → Environments**, create a **"Production"** environment, then add the following:
+
+#### Secrets
+
+| Secret                 | Description                                                                                                                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN` | [Create a token](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) using the **"Edit Cloudflare Workers"** template, then add **Account → Cloudflare D1 → Edit** permission |
+| `TURNSTILE_SECRET_KEY` | Go to **Application Security → Turnstile** and copy the **Secret Key**                                                                                                                               |
+| `BETTER_AUTH_SECRET`   | Auth secret key (`openssl rand -base64 32`)                                                                                                                                                          |
+
+#### Variables
+
+| Variable                  | Description                                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
+| `CLOUDFLARE_ACCOUNT_ID`   | Select your account → **Workers & Pages**, copy the **Account ID** from the right sidebar    |
+| `BETTER_AUTH_URL`         | Production URL (e.g. `https://your-domain.com`)                                              |
+| `VITE_TURNSTILE_SITE_KEY` | Go to **Application Security → Turnstile** and copy the **Site Key**                         |
 
 ## Deployment
 
 ### CI/CD Pipeline
 
-Pushing to `main` triggers the GitHub Actions workflow (`.github/workflows/deploy.yml`) which runs the following steps in order:
-
-1. **Install** — `pnpm install --frozen-lockfile`
-2. **Lint** — `pnpm run lint`
-3. **Type Check** — `pnpm run check`
-4. **Migrate** — `pnpm run migrate:prod` (applies D1 migrations to production)
-5. **Build** — `pnpm run build`
-6. **Deploy** — `wrangler deploy` (deploys to Cloudflare Workers)
-
-### Manual Deployment
-
-> [!CAUTION]
-> Manual deployment is not recommended. Always prefer the CI/CD pipeline to ensure consistent and safe deployments.
-
-```shell
-pnpm run migrate:prod
-pnpm run release
-```
-
-### GitHub Secrets
-
-> [!NOTE]
-> The following secrets are required for CI deployment.
-
-| Secret                    | Description                                  |
-| ------------------------- | -------------------------------------------- |
-| `CLOUDFLARE_API_TOKEN`    | API token with Workers and D1 access         |
-| `CLOUDFLARE_ACCOUNT_ID`   | Your Cloudflare account ID                   |
-| `VITE_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (used at build) |
-
-#### Cloudflare API Token
-
-1. Go to [Cloudflare Dashboard → API Tokens](https://dash.cloudflare.com/profile/api-tokens)
-2. Click **Create Token**
-3. Use the **"Edit Cloudflare Workers"** template
-4. Add the following permission: **Account → Cloudflare D1 → Edit**
-5. Save the token
-
-#### Cloudflare Account ID
-
-1. Go to the [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. Select your account → **Workers & Pages**
-3. Copy the **Account ID** from the right sidebar
-
-#### Cloudflare Turnstile
-
-1. Go to [Cloudflare Dashboard → Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile)
-2. Click **Add widget**
-3. Enter a name and add your domain(s)
-4. Choose a widget mode (Managed, Non-Interactive, or Invisible)
-5. Copy the **Site Key** — use this for `VITE_TURNSTILE_SITE_KEY`
-6. Copy the **Secret Key** — add this as `TURNSTILE_SECRET_KEY` in your Cloudflare Worker secrets
-
-#### Adding secrets to GitHub
-
-1. Go to **Settings → Environments → Production**
-2. Add `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and `VITE_TURNSTILE_SITE_KEY`
+Pushing to `main` triggers the GitHub Actions workflow (`.github/workflows/deploy.yml`).
 
 ## Further Reading
 
